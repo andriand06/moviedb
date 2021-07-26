@@ -1,34 +1,43 @@
-import React , { useState, useEffect, useRef} from 'react'
+import React , { Component} from 'react'
 import searchIcon from '../../assets/images/search-icon.svg'    
 import { Wrapper, Content } from './SearchBar.styles'
 
 import PropTypes from 'prop-types'
+//Class Component
+class SearchBar extends Component {
+    state = {
+        value : ''
+    }
+    timeout = null;
+    componentDidUpdate(_prevProps,prevState) {
+        if(this.state.value !== prevState.value) {
+            const { setSearchTerm } = this.props;
+            clearTimeout(this.timeout);
 
-const SearchBar = ({ setSearchTerm }) => {
-    const [ state, setState] = useState("");
-    const initial = useRef(true);
+            this.timeout = setTimeout(() => {
+                const { value } = this.state;
+                setSearchTerm(value);
+            },500)
+        }
+    }
 
-    useEffect(() => {
-        if(initial.current) {
-            initial.current = false;
-            return;
-        } 
-        const timer = setTimeout(()=> {
-            setSearchTerm(state);
-        },500)
-        return () => clearTimeout(timer);
-    },[setSearchTerm, state])
-    return (
-        <Wrapper>
-            <Content>
-                <img src={searchIcon} alt="search-icon" />
-                <input type="text" placeholder="Search Movie" onChange={event => setState(event.currentTarget.value)}
-                value={state}/>
-            </Content>
-        </Wrapper>
-    );
-};
-SearchBar.propTypes = {
-    callback : PropTypes.func
+    render(){
+        const { value } = this.state;
+        return (
+            
+            <Wrapper>
+                <Content>
+                    <img src={searchIcon} alt="search-icon" />
+                    <input type="text" onChange={event => this.setState({ value : event.currentTarget.value})} value={value}  placeholder="Search Movie"/>
+                </Content>
+            </Wrapper>
+        );
+    }
+
 }
+SearchBar.propTypes = {
+    callback : PropTypes.func,
+};
+
+
 export default SearchBar
